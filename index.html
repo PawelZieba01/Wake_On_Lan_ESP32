@@ -1,0 +1,101 @@
+<html> 
+    <head> 
+        <title>ESP32 WakeOnLan</title>
+        <meta charset="UTF-8"/>
+        
+        <style>
+            
+        </style>
+
+
+
+        <script language="javascript">
+        
+            //Funkcja wysyłająca konfigurację urządzenia
+            function sendConf()
+            {
+                var RemoteMAC = document.getElementById("remote_MAC").value;
+                var WiFissid = document.getElementById("ssid").value;
+                var WiFipass = document.getElementById("password").value;
+                var MQTTSrv = document.getElementById("mqtt_srv").value;
+                var MQTTSubTopic = document.getElementById("mqtt_topic").value;
+                var MQTTUserName = document.getElementById("mqtt_user").value;
+                var MQTTUserPass = document.getElementById("mqtt_password").value;
+                
+                var resp;
+                var xmlhttp = new XMLHttpRequest();
+                
+                var url = "conf";
+                xmlhttp.open("POST", url, true);           //prepare request
+                xmlhttp.setRequestHeader("Content-Type", "application/json");
+                
+                var data = JSON.stringify({"RemoteMAC": RemoteMAC,
+                                           "WiFissid": WiFissid,
+                                           "WiFipass": WiFipass,
+                                           "MQTTSrv": MQTTSrv,
+                                           "MQTTSubTopic": MQTTSubTopic,
+                                           "MQTTUserName": MQTTUserName,
+                                           "MQTTUserPass": MQTTUserPass,
+                                           });
+                 
+                xmlhttp.onreadystatechange = function()         //get data from server
+                {
+                    if(xmlhttp.readyState==4 && xmlhttp.status==200)
+                    {
+                        var json = JSON.parse(xmlhttp.responseText);
+                        var resp = json.SrvResp;
+                        
+                        if(resp == "OK")
+                        {
+                            document.getElementById("confForm").reset();
+                            document.getElementById("resp").innerHTML = 'Pomyślnie zapisano konfigurację. Można uruchomić urządzenie ponownie.';
+                        }
+                        else
+                        {
+                            document.getElementById("resp").innerHTML = 'Błąd podczas zapisu konfiguracji.';
+                        }
+                    }
+                }
+                
+                xmlhttp.send(data);
+                
+            }
+        </script>
+
+    </head> 
+    
+    
+    <body> 
+    
+        <div id="hd">ESP32 WakeOnLan</div>
+        
+        <form id="confForm">
+        
+            <label for='remote_MAC'> Adres MAC budzonego urządzenia: </label><br>
+            <input type='text' id='remote_MAC'><br>
+            
+            <label for='ssid'> Nazwa sieci WiFi </label><br>
+            <input type='text' id='ssid'><br>
+            
+            <label for='password'> Hasło do sieci WiFi: </label><br>
+            <input type='text' id='password'><br>
+            
+            <label for='mqtt_srv'> Serwer MQTT: </label><br>
+            <input type='text' id='mqtt_srv'><br>
+            
+            <label for='mqtt_topic'> Subskrybowany temat MQTT: </label><br>
+            <input type='text' id='mqtt_topic'><br>
+            
+            <label for='mqtt_user'> Nazwa użytkownika MQTT: </label><br>
+            <input type='text' id='mqtt_user'><br>
+            
+            <label for='mqtt_password'> Hasło użytkownika MQTT: </label><br>
+            <input type='text' id='mqtt_password'><br>
+        </form>
+            
+        <button onclick="sendConf()">Zapisz</button><br><br>
+        
+        <div id="resp"></div>
+    </body>
+</html>
+
